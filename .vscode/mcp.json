@@ -9,6 +9,24 @@
     }
   ],
   "servers": {
+    "weather": {
+        "command": "uv",
+        "args": [
+            "--directory",
+            "C:\\github\\cs453-project\\weather",
+            "run",
+            "weather.py"
+        ]
+    },
+    "ASTParser": {
+        "command": "uv",
+        "args": [
+            "--directory",
+            "C:\\github\\cs453-project\\weather",
+            "run",
+            "ast.py"
+        ]
+    },
     // https://github.com/ppl-ai/modelcontextprotocol/
     "Perplexity": {
       "type": "stdio",
@@ -19,4 +37,5 @@
       }
     }
   }
+
 }
