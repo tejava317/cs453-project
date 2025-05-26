@@ -18,6 +18,13 @@
             "weather.py"
         ]
     },
+    "git":
+      {
+      "command": "uvx",
+      "args": [
+        "mcp-server-git"
+      ]
+      },
     "ASTParser": {
         "command": "uv",
         "args": [
