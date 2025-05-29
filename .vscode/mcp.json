@@ -6,7 +6,14 @@
       "id": "perplexity-key",
       "description": "Perplexity API Key",
       "password": true
-    }
+    }, 
+    {
+      "type": "promptString",
+      "id": "wow",
+      "description": "env variable testing",
+      "password": true
+    }, 
+    
   ],
   "servers": {
     "weather": {
@@ -41,6 +48,19 @@
       "args": ["-y", "server-perplexity-ask"],
       "env": {
         "PERPLEXITY_API_KEY": "${input:perplexity-key}"
+      }
+    },
+    "perplexityAPI": {
+      "type":"stdio",
+      "command": "uv",
+      "args": [
+            "--directory",
+            "C:\\github\\Automated Software Testing\\cs453-project\\weather",
+            "run",
+            "perplexity_api.py"
+      ],
+      "env": {
+        "wow": "${input:wow}"
       }
     }
   }
