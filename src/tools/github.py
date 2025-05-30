@@ -18,32 +18,28 @@ class GitHubTools:
         self.repo_owner = ""
         self.repo_name = ""
     
-    async def set_username(self, username: str):
+    async def get_user_info(self, username: str) -> str:
         self.username = username
-    
-    async def set_repo_info(self, repo_owner: str, repo_name: str):
-        self.repo_owner = repo_owner
-        self.repo_name = repo_name
-    
-    async def get_user_info(self) -> str:
         url = f"https://api.github.com/users/{self.username}"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
             response.raise_for_status()
             return response.json()
     
-    async def get_repo_info(self) -> str:
+    async def get_repo_info(self, repo_owner: str, repo_name: str) -> str:
+        self.repo_owner = repo_owner
+        self.repo_name = repo_name
         url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
             response.raise_for_status()
             return response.json()
     
-    async def get_code_content(self, file_path: str) -> str:
-        url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}/contents/{file_path}"
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url, headers=self.headers)
-            response.raise_for_status()
-            data = response.json()
-            content = base64.b64decode(data['content']).decode('utf-8')
-            return content
+    # async def get_code_content(self, file_path: str) -> str:
+    #     url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}/contents/{file_path}"
+    #     async with httpx.AsyncClient() as client:
+    #         response = await client.get(url, headers=self.headers)
+    #         response.raise_for_status()
+    #         data = response.json()
+    #         content = base64.b64decode(data['content']).decode('utf-8')
+    #         return content
