@@ -20,10 +20,15 @@ async def get_github_repo_info(repo_owner: str, repo_name: str) -> str:
     """Look up information about a GitHub repository"""
     return await github_tools.get_repo_info(repo_owner, repo_name)
 
-# @mcp.tool()
-# async def get_github_code_content(file_path: str) -> str:
-#     """Look up the content of a file in a GitHub repository"""
-#     return await github_tools.get_code_content(file_path)
+@mcp.tool()
+async def get_github_repo_tree(repo_owner: str, repo_name: str) -> str:
+    """Look up the directory structure of a GitHub repository"""
+    return await github_tools.get_repo_tree(repo_owner, repo_name)
+
+@mcp.tool()
+async def get_github_repo_code(repo_owner: str, repo_name: str, file_path: str) -> str:
+    """Look up the content of a file in a GitHub repository"""
+    return await github_tools.get_repo_code(repo_owner, repo_name, file_path)
 
 if __name__ == "__main__":
     # Use 'mcp dev src/server.py' to start MCP Inspector
