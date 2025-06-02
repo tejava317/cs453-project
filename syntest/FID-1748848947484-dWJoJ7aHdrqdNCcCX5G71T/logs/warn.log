@@ -1,0 +1,2 @@
+{"level":"warn","message":"'analysis-include' config parameter is empty so we only use the target files for analysis","meta":{"context":"JavaScriptLauncher"},"timestamp":"2025-06-02T07:22:28.832Z"}
+{"level":"warn","message":"Cannot find binding for f at C:\\github\\cs453-project\\target_functions\\myFunction.js:9:17:::9:18:::125:126","meta":{"context":"AbstractSyntaxTreeVisitor"},"timestamp":"2025-06-02T07:22:28.896Z"}

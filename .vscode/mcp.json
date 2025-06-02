@@ -36,9 +36,9 @@
         "command": "uv",
         "args": [
             "--directory",
-            "C:\\github\\cs453-project\\weather",
+            "C:\\github\\cs453-project",
             "run",
-            "ast.py"
+            "AST.py"
         ]
     },
     // https://github.com/ppl-ai/modelcontextprotocol/
@@ -55,12 +55,12 @@
       "command": "uv",
       "args": [
             "--directory",
-            "C:\\github\\Automated Software Testing\\cs453-project\\weather",
+            "C:\\github\\cs453-project",
             "run",
             "perplexity_api.py"
       ],
       "env": {
-        "wow": "${input:wow}"
+        "PERPLEXITY_API_KEY": "${input:perplexity-key}"
       }
     }
   }
