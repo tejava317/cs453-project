@@ -37,8 +37,9 @@ def generate_test(codepath:str) -> str:
     encoding='utf-8' # 라인 단위 버퍼링
     )
 
-    user_input = f"code: {code}'\n---------------'\n' analysis:{analysis}"
-    outs, errs = process.communicate(input=user_input, timeout=20)
+    user_input = f"""code: {code}'\n---------------'\n' analysis:{analysis},
+give me EXACT, PROPER, and VARIOUS test cases."""
+    outs, errs = process.communicate(input=user_input, timeout=60)
     
     messages = [
     {
