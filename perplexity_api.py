@@ -1,5 +1,5 @@
 from openai import OpenAI
-
+import subprocess
 from typing import Any
 import httpx
 import ast
@@ -26,6 +26,20 @@ def generate_test(codepath:str) -> str:
         return str(e)
     analysis = esprima.parseScript(code)
     # analysis = code
+    
+    process = subprocess.Popen(
+    "ollama run gemma3:4b",  
+    stdin=subprocess.PIPE,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
+    text=True,  # Python 3.7 이상에서 텍스트 모드 사용
+    bufsize=10,
+    encoding='utf-8' # 라인 단위 버퍼링
+    )
+
+    user_input = f"code: {code}'\n---------------'\n' analysis:{analysis}"
+    outs, errs = process.communicate(input=user_input, timeout=20)
+    
     messages = [
     {
         "role": "system",
@@ -79,7 +93,7 @@ def generate_test(codepath:str) -> str:
         model="sonar-pro",
         messages=messages2,
     )
-    return str(response)
+    return str(response), outs
 
 
 
