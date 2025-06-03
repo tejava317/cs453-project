@@ -8,7 +8,7 @@ class RepositoryAnalyzer:
         self.repo_path = tempfile.mkdtemp()
         self.loader = None
         self.documents = None
-        self.valid_file_extensions = [".py"]  # TODO: Add more file extensions
+        self.valid_file_extensions = [".js"]  # TODO: Add more file extensions
 
     def load_documents(self, repo_owner, repo_name):
         self.repo_owner = repo_owner
