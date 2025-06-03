@@ -24,8 +24,10 @@ async def run_jest_tests(base_dir: str, log_dir: str, job_id: str, jobs: dict) -
             raise FileNotFoundError(f"base_dir does not exist: {base_dir}")
         
         logger.debug(f"Starting Jest for all tests in base_dir: {base_dir}")
+        
+        npx_command = "npx.cmd" if os.name == "nt" else "npx"
         proc = await asyncio.create_subprocess_exec(
-            "npx.cmd", "jest", "--json",
+            npx_command, "jest", "--json",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             cwd=base_dir
