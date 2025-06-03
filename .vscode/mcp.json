@@ -1,0 +1,13 @@
+{
+    "servers": {
+        "GitHub Repository Agent": {
+            "command": "uv",
+            "args": [
+                "--directory",
+                "C:\\github\\Automated Software Testing\\cs453-project\\src",
+                "run",
+                "server.py"
+            ]
+        }
+    }
+}

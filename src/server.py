@@ -8,6 +8,7 @@ import os
 import httpx
 import ast
 import esprima
+import json
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 load_dotenv(dotenv_path)
@@ -31,9 +32,10 @@ def load_repository(repo_owner: str, repo_name: str) -> str:
 
 @mcp.tool()
 def generate_test(code:str) -> str:
-    """Generate a test of the given javascript code.
+    """Generate a test of the given raw java script code which is read
+    from github repository or some local repository(str).
     Args:
-        code: js script
+        code: js script (str)
     """
     # Here you would implement logic to generate a test based on the analysis
     # For simplicity, we will just return the analysis as the test code
@@ -42,9 +44,9 @@ def generate_test(code:str) -> str:
     #     with open(codepath, 'r', encoding='utf-8') as f:
     #         code = f.read()
     # except Exception as e:
-    #     return str(e)
-    analysis = esprima.parseScript(code)
-    # analysis = code
+    #     return str(e)   
+    # analysis = esprima.parseScript(code)
+    analysis = code
     
     # process = subprocess.Popen(
     # "ollama run gemma3:4b",  
@@ -56,8 +58,7 @@ def generate_test(code:str) -> str:
     # encoding='utf-8' # 라인 단위 버퍼링
     # )
 
-    user_input = f"""code: {code}'\n---------------'\n' analysis:{analysis},
-give me EXACT, PROPER, and VARIOUS test cases."""
+    user_input = f"code: {code}'\n---------------'\n' analysis:{analysis}, give me EXACT, PROPER, and VARIOUS test cases."
     # outs, errs = process.communicate(input=user_input, timeout=60)
     
     messages = [
@@ -113,7 +114,7 @@ give me EXACT, PROPER, and VARIOUS test cases."""
         model="sonar-pro",
         messages=messages2,
     )
-    return str(response)
+    return str(response2)
 
 if __name__ == "__main__":
     # Use 'mcp dev src/server.py' to start MCP Inspector
