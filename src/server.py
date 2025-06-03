@@ -1,5 +1,5 @@
 from mcp.server.fastmcp import FastMCP
-from tools.github import GitHubTools
+from tools.github import RepositoryAnalyzer
 
 mcp = FastMCP(
     name="GitHub Repository Agent",
@@ -8,27 +8,12 @@ mcp = FastMCP(
         """
 )
 
-github_tools = GitHubTools()
+repository_analyzer =  RepositoryAnalyzer()
 
 @mcp.tool()
-async def get_github_user_info(username: str) -> str:
-    """Look up information about a GitHub user"""
-    return await github_tools.get_user_info(username)
-
-@mcp.tool()
-async def get_github_repo_info(repo_owner: str, repo_name: str) -> str:
-    """Look up information about a GitHub repository"""
-    return await github_tools.get_repo_info(repo_owner, repo_name)
-
-@mcp.tool()
-async def get_github_repo_tree(repo_owner: str, repo_name: str) -> str:
-    """Look up the directory structure of a GitHub repository"""
-    return await github_tools.get_repo_tree(repo_owner, repo_name)
-
-@mcp.tool()
-async def get_github_repo_code(repo_owner: str, repo_name: str, file_path: str) -> str:
-    """Look up the content of a file in a GitHub repository"""
-    return await github_tools.get_repo_code(repo_owner, repo_name, file_path)
+def load_repository(repo_owner: str, repo_name: str) -> str:
+    """Load information about a GitHub repository"""
+    return repository_analyzer.load_documents(repo_owner, repo_name)
 
 if __name__ == "__main__":
     # Use 'mcp dev src/server.py' to start MCP Inspector
