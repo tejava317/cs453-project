@@ -1,0 +1,13 @@
+{
+    "mcpServers": {
+        "GitHub Repository Agent": {
+            "command": "uv",
+            "args": [
+                "--directory",
+                "./src",
+                "run",
+                "server.py"
+            ]
+        }
+    }
+}

@@ -16,15 +16,15 @@
     
   ],
   "servers": {
-    "weather": {
-        "command": "uv",
-        "args": [
-            "--directory",
-            "C:\\github\\cs453-project\\weather",
-            "run",
-            "weather.py"
-        ]
-    },
+    "GitHub Repository Agent": {
+            "command": "uv",
+            "args": [
+                "--directory",
+                "./src",
+                "run",
+                "server.py"
+            ]
+        },
     "git":
       {
       "command": "uvx",
