@@ -12,18 +12,17 @@ jobs = {}
 
 # 작업 시작 툴
 @mcp.tool()
-async def start_jest_job(jest_code: str) -> str:
+async def start_jest_job(base_dir: str) -> str:
     # 작업 ID 생성
     job_id = str(uuid.uuid4())
     jobs[job_id] = {"status": "pending", "result": None, "error": None}
 
-    # 작업 디렉토리 생성
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    job_dir = os.path.join(base_dir,"logs", job_id)
-    os.makedirs(job_dir, exist_ok=True)
+    # 작업 디렉토리 생성 (로그 등 저장용)
+    log_dir = os.path.join(base_dir, ".mcp-logs", job_id)
+    os.makedirs(log_dir, exist_ok=True)
     
     # 작업 실행 함수 호출
-    asyncio.create_task(run_jest_tests(jest_code, job_id, job_dir, jobs, base_dir))
+    asyncio.create_task(run_jest_tests(base_dir, log_dir, job_id, jobs))
     
     return job_id
 
