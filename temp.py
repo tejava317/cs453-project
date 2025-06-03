@@ -23,7 +23,7 @@ async def main():
             print("Error:")
             print(status["error"])
             break
-        await asyncio.sleep(1)  # 2초마다 폴링
+        await asyncio.sleep(1)  # 1초마다 폴링
 
 if __name__ == "__main__":
     asyncio.run(main())
