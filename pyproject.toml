@@ -2,7 +2,7 @@
 name = "cs453-project"
 version = "0.1.0"
 description = "MCP Server and Client Implementation using FastMCP"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 dependencies = [
     "mcp[cli]>=1.9.1",
     "pydantic>=2.0.0",

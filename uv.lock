@@ -62,10 +62,16 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "mcp", extra = ["cli"] },
+    { name = "pydantic" },
+    { name = "typing-extensions" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "mcp", extras = ["cli"], specifier = ">=1.9.1" }]
+requires-dist = [
+    { name = "mcp", extras = ["cli"], specifier = ">=1.9.1" },
+    { name = "pydantic", specifier = ">=2.0.0" },
+    { name = "typing-extensions", specifier = ">=4.0.0" },
+]
 
 [[package]]
 name = "exceptiongroup"
