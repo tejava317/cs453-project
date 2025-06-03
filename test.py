@@ -1,9 +1,11 @@
 import asyncio
+import os
 from server import start_jest_job, get_jest_job_status
 
 async def main():
     # 1. 작업 예약
-    job_id = await start_jest_job()
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    job_id = await start_jest_job(base_dir)
     print(f"Job started. job_id={job_id}")
 
     # 2. 폴링으로 상태 확인
