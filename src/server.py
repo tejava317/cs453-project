@@ -11,6 +11,9 @@ import ast
 import esprima
 import json
 import ast
+import subprocess
+import asyncio 
+import nest_asyncio
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 load_dotenv(dotenv_path)
@@ -24,6 +27,29 @@ mcp = FastMCP(
 )
 
 client = OpenAI(api_key=PERPLEXITY_API_KEY, base_url="https://api.perplexity.ai")
+
+@mcp.tool()
+def _execute_validate_test(test_code_path:str) -> str:
+    if not test_code_path.endswith('.test.js'):
+        return "the file path is not valid. It must ends with .test.js"
+    cmd = "npx.cmd"
+    args = ["jest"]
+    subprocess.run(["npx.cmd", "jest"])
+    return ""
+    # proc = await asyncio.create_subprocess_exec(
+    #     cmd, *args,
+    #     stdout=asyncio.subprocess.PIPE,
+    #     stderr=asyncio.subprocess.PIPE
+    # )
+    # stdout, stderr = await proc.communicate()
+    # return stdout, stderr
+    # stdout, stderr = await proc.communicate()
+
+    # if stdout:
+    #     return f'[stdout]\n{stdout.decode()}'
+    # if stderr:
+    #     return f'[stderr]\n{stderr.decode()}'
+    # return "validation success. and the test exeuction result:"
 
 @mcp.tool()
 async def get_github_repo_info() -> str:
@@ -41,6 +67,20 @@ async def get_github_repo_code(file_path: str) -> str:
     return await github_tools.get_repo_code(file_path)
 
 @mcp.tool()
+def execute_validate_test(test_code_path: str) -> str:
+    """Execute the given test code and validate it syntatically.
+    Args:
+        test_code_path: the file path of generated test code."""
+    # asyncio.run() cannot be called from a running event loop, so we must use nest_asyncio or make this tool async only
+    try:
+        loop = asyncio.get_running_loop()
+        nest_asyncio.apply()
+        return loop.run_until_complete(_execute_validate_test(test_code_path))
+    except RuntimeError:
+        # No running loop, safe to use asyncio.run
+        return _execute_validate_test(test_code_path)
+    
+@mcp.tool()
 def generate_test_from_raw_code(code:str, code_file_path:str, repo_tree:str) -> str:
     """Generate test from given raw code, code's file path, and directory tree.
     Args:
@@ -50,6 +90,7 @@ def generate_test_from_raw_code(code:str, code_file_path:str, repo_tree:str) -> 
     """
     # Here you would implement logic to generate a test based on the analysis
     # For simplicity, we will just return the analysis as the test code
+    analysis = ''
     if code_file_path.endswith('.py'):
         try:
             root = ast.parse(code)
