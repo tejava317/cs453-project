@@ -31,20 +31,19 @@ def load_repository(repo_owner: str, repo_name: str) -> str:
     return repository_analyzer.load_documents(repo_owner, repo_name)
 
 @mcp.tool()
-def generate_test(code:str) -> str:
-    """Generate a test of the given raw java script code which is read
-    from github repository or some local repository(str).
+def generate_test(codepath:str) -> str:
+    """Generate a test of the given file path.
     Args:
-        code: js script (str)
+        codepath: javascript file path.
     """
     # Here you would implement logic to generate a test based on the analysis
     # For simplicity, we will just return the analysis as the test code
-    # code = None
-    # try:
-    #     with open(codepath, 'r', encoding='utf-8') as f:
-    #         code = f.read()
-    # except Exception as e:
-    #     return str(e)   
+    code = None
+    try:
+        with open(codepath, 'r', encoding='utf-8') as f:
+            code = f.read()
+    except Exception as e:
+        return "Invalid file path."
     try:
         analysis = esprima.parseScript(code)
     except Exception as e:
