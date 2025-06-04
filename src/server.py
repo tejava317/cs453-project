@@ -45,9 +45,10 @@ def generate_test(codepath:str) -> str:
     except Exception as e:
         return "Invalid file path."
     try:
-        analysis = esprima.parseScript(code)
+        ast = esprima.parseModule(code)
+        analysis = json.dumps(ast.toDict(), indent=2, ensure_ascii=False)
     except Exception as e:
-        return "invalid java script code: this code cannot be parsed."
+        return f"invalid java script code:{code}, this code cannot be parsed."
     
     # process = subprocess.Popen(
     # "ollama run gemma3:4b",  
