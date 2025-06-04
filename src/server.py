@@ -1,9 +1,10 @@
 from mcp.server.fastmcp import FastMCP
-from tools.github import RepositoryAnalyzer
+from tools.github import GitHubTools
 from openai import OpenAI
 from typing import Any
 from dotenv import load_dotenv
 import subprocess
+import argparse
 import os
 import httpx
 import ast
@@ -12,7 +13,6 @@ import json
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 load_dotenv(dotenv_path)
-
 PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
 
 mcp = FastMCP(
@@ -22,13 +22,22 @@ mcp = FastMCP(
         """
 )
 
-repository_analyzer =  RepositoryAnalyzer()
 client = OpenAI(api_key=PERPLEXITY_API_KEY, base_url="https://api.perplexity.ai")
 
 @mcp.tool()
-def load_repository(repo_owner: str, repo_name: str) -> str:
-    """Load information about a GitHub repository"""
-    return repository_analyzer.load_documents(repo_owner, repo_name)
+async def get_github_repo_info() -> str:
+    """Load information about the GitHub repository"""
+    return await github_tools.get_repo_info()
+
+@mcp.tool()
+async def get_github_repo_tree() -> str:
+    """Load information about the GitHub repository"""
+    return await github_tools.get_repo_tree()
+
+@mcp.tool()
+async def get_github_repo_code(file_path: str) -> str:
+    """Load information about the GitHub repository"""
+    return await github_tools.get_repo_code(file_path)
 
 @mcp.tool()
 def generate_test(codepath:str) -> str:
@@ -119,6 +128,13 @@ def generate_test(codepath:str) -> str:
     return str(response2)
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo-owner", type=str, required=True)
+    parser.add_argument("--repo-name", type=str, required=True)
+    args = parser.parse_args()
+    
+    github_tools = GitHubTools(args.repo_owner, args.repo_name)
+
     # Use 'mcp dev src/server.py' to start MCP Inspector
     try:
         mcp.run(transport="stdio")
