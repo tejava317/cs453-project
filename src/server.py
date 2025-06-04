@@ -10,6 +10,7 @@ import httpx
 import ast
 import esprima
 import json
+import ast
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 load_dotenv(dotenv_path)
@@ -40,7 +41,87 @@ async def get_github_repo_code(file_path: str) -> str:
     return await github_tools.get_repo_code(file_path)
 
 @mcp.tool()
-def generate_test(codepath:str) -> str:
+def generate_python_test_from_raw_code(code:str) -> str:
+    """Generate a python test from given raw code.
+    Args:
+        code: raw python code.
+    """
+    # Here you would implement logic to generate a test based on the analysis
+    # For simplicity, we will just return the analysis as the test code
+    
+    root = ast.parse(code)
+    analysis = ast.dump(root, indent=4)
+    
+    # process = subprocess.Popen(
+    # "ollama run gemma3:4b",  
+    # stdin=subprocess.PIPE,
+    # stdout=subprocess.PIPE,
+    # stderr=subprocess.PIPE,
+    # text=True,  # Python 3.7 이상에서 텍스트 모드 사용
+    # bufsize=10,
+    # encoding='utf-8' # 라인 단위 버퍼링
+    # )
+
+    user_input = f"code: {code}'\n---------------'\n' analysis:{analysis}, give me EXACT, PROPER, and VARIOUS test cases."
+    # outs, errs = process.communicate(input=user_input, timeout=60)
+    
+    messages = [
+    {
+        "role": "system",
+        "content": (
+            "You are the best expert in code analysis and generation. "
+            "You MUST generate a test based on the analysis provided."
+            "The test should be a as VARIOUS as possible and EXACT."
+            "You must use the following format."
+            "- test case name: <name of test case>"
+            "- test code: <code of the test>"
+        ),  
+    },
+    {   
+        "role": "user",
+        "content": (
+            "Please crate a good test code based on the analysis provided."
+            f"analysis: {analysis}"
+            f"code: {code}"
+        ),
+    },
+    ]
+
+    # chat completion without streaming
+    response = client.chat.completions.create(
+        model="sonar-pro",
+        messages=messages,
+    )
+    messages2 = [
+    {
+        "role": "system",
+        "content": (
+            "You are the best expert in code analysis and generation. "
+            "You MUST generate a test based on the analysis provided."
+            "The test should be a as VARIOUS as possible and EXACT."
+            "You must use the following format."
+            "- test case name: <name of test case>"
+            "- test code: <code of the test>"
+        ),  
+    },
+    {   
+        "role": "user",
+        "content": (
+            f"analyze your previous response {str(response)} and modify properly, add new test cases."
+            f"analysis: {analysis}"
+            f"code: {code}"
+        ),
+    },
+    ]
+    # modify again.
+    response2 = client.chat.completions.create(
+        model="sonar-pro",
+        messages=messages2,
+    )
+    return str(response2)
+
+@mcp.tool()
+def generate_jest_test_from_path(codepath:str) -> str:
     """Generate a test of the given file path.
     Args:
         codepath: javascript file path.
