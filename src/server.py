@@ -41,16 +41,19 @@ async def get_github_repo_code(file_path: str) -> str:
     return await github_tools.get_repo_code(file_path)
 
 @mcp.tool()
-def generate_python_test_from_raw_code(code:str) -> str:
-    """Generate a python test from given raw code.
+def generate_test_from_raw_code(code:str) -> str:
+    """Generate test from given raw code.
     Args:
-        code: raw python code.
+        code: raw code.
     """
     # Here you would implement logic to generate a test based on the analysis
     # For simplicity, we will just return the analysis as the test code
     
-    root = ast.parse(code)
-    analysis = ast.dump(root, indent=4)
+    try:
+        root = ast.parse(code)
+        analysis = ast.dump(root, indent=4)
+    except Exception as e:
+        analysis = ''
     
     # process = subprocess.Popen(
     # "ollama run gemma3:4b",  
