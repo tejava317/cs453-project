@@ -9,41 +9,23 @@ load_dotenv(dotenv_path)
 GITHUB_API_TOKEN = os.getenv("GITHUB_API_TOKEN")
 
 class GitHubTools:
-    def __init__(self):
+    def __init__(self, repo_owner: str, repo_name: str):
         self.headers = {
             "Authorization": f"Bearer {GITHUB_API_TOKEN}",
             "Accept": "application/vnd.github.v3+json"
         }
-        self.username = ""
-        self.repo_owner = ""
-        self.repo_name = ""
-        self.repo_tree = ""
-    
-    def set_user_info(self, username: str):
-        self.username = username
-    
-    def set_repo_info(self, repo_owner: str, repo_name: str):
         self.repo_owner = repo_owner
         self.repo_name = repo_name
+        self.repo_tree = ""
     
-    async def get_user_info(self, username: str) -> str:
-        self.set_user_info(username)
-        url = f"https://api.github.com/users/{self.username}"
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url, headers=self.headers)
-            response.raise_for_status()
-            return response.json()
-    
-    async def get_repo_info(self, repo_owner: str, repo_name: str) -> str:
-        self.set_repo_info(repo_owner, repo_name)
+    async def get_repo_info(self) -> str:
         url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
             response.raise_for_status()
             return response.json()
     
-    async def get_repo_tree(self, repo_owner: str, repo_name: str) -> str:
-        self.set_repo_info(repo_owner, repo_name)
+    async def get_repo_tree(self) -> str:
         # Get the default branch name
         repo_url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}"
         async with httpx.AsyncClient() as client:
@@ -66,8 +48,7 @@ class GitHubTools:
             self.repo_tree = tree_response.json()
             return self.repo_tree
     
-    async def get_repo_code(self, repo_owner: str, repo_name: str, file_path: str) -> str:
-        self.set_repo_info(repo_owner, repo_name)
+    async def get_repo_code(self, file_path: str) -> str:
         url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}/contents/{file_path}"
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
