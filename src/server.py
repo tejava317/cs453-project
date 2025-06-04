@@ -27,54 +27,60 @@ client = OpenAI(api_key=PERPLEXITY_API_KEY, base_url="https://api.perplexity.ai"
 
 @mcp.tool()
 async def get_github_repo_info() -> str:
-    """Load information about the GitHub repository"""
+    """Load information about the GitHub remote repository"""
     return await github_tools.get_repo_info()
 
 @mcp.tool()
 async def get_github_repo_tree() -> str:
-    """Load information about the GitHub repository"""
+    """Load information about the GitHub remote repository"""
     return await github_tools.get_repo_tree()
 
 @mcp.tool()
 async def get_github_repo_code(file_path: str) -> str:
-    """Load information about the GitHub repository"""
+    """Load information about the GitHub remote repository"""
     return await github_tools.get_repo_code(file_path)
 
 @mcp.tool()
-def generate_test_from_raw_code(code:str) -> str:
-    """Generate test from given raw code.
+def generate_test_from_raw_code(code:str, code_file_path:str, repo_tree:str) -> str:
+    """Generate test from given raw code, code's file path, and directory tree.
     Args:
-        code: raw code.
+        code: raw code
+        code_file_path: the file path of code
+        repo_tree: the entire repo tree that contains the code file.
     """
     # Here you would implement logic to generate a test based on the analysis
     # For simplicity, we will just return the analysis as the test code
-    
-    try:
-        root = ast.parse(code)
-        analysis = ast.dump(root, indent=4)
-    except Exception as e:
-        analysis = ''
-    
+    if code_file_path.endswith('.py'):
+        try:
+            root = ast.parse(code)
+            analysis = ast.dump(root, indent=4)
+        except Exception as e:
+            analysis = ''
+    elif code_file_path.endswith('.js'):
+        try:
+            ast = esprima.parseModule(code)
+            analysis = json.dumps(ast.toDict(), indent=2, ensure_ascii=False)
+        except Exception as e:
+            analysis = ''
     # process = subprocess.Popen(
     # "ollama run gemma3:4b",  
     # stdin=subprocess.PIPE,
     # stdout=subprocess.PIPE,
     # stderr=subprocess.PIPE,
-    # text=True,  # Python 3.7 이상에서 텍스트 모드 사용
+    # text=True,  
     # bufsize=10,
-    # encoding='utf-8' # 라인 단위 버퍼링
+    # encoding='utf-8'
     # )
 
-    user_input = f"code: {code}'\n---------------'\n' analysis:{analysis}, give me EXACT, PROPER, and VARIOUS test cases."
+    # user_input = f"code: {code}'\n---------------'\n' analysis:{analysis}, give me EXACT, PROPER, and VARIOUS test cases."
     # outs, errs = process.communicate(input=user_input, timeout=60)
     
     messages = [
     {
         "role": "system",
         "content": (
-            "You are the best expert in code analysis and generation. "
             "You MUST generate a test based on the analysis provided."
-            "The test should be a as VARIOUS as possible and EXACT."
+            "The test should be a as VARIOUS and EXACT as possible."
             "You must use the following format."
             "- test case name: <name of test case>"
             "- test code: <code of the test>"
@@ -83,9 +89,11 @@ def generate_test_from_raw_code(code:str) -> str:
     {   
         "role": "user",
         "content": (
-            "Please crate a good test code based on the analysis provided."
+            "Crate a good test code based on the analysis provided."
             f"analysis: {analysis}"
             f"code: {code}"
+            f"current file paht: {code_file_path}"
+            f"whole directory tree: {repo_tree}"
         ),
     },
     ]
@@ -99,108 +107,19 @@ def generate_test_from_raw_code(code:str) -> str:
     {
         "role": "system",
         "content": (
-            "You are the best expert in code analysis and generation. "
-            "You MUST generate a test based on the analysis provided."
-            "The test should be a as VARIOUS as possible and EXACT."
-            "You must use the following format."
-            "- test case name: <name of test case>"
-            "- test code: <code of the test>"
+            "You are the validator the given test codes of the code and analysis."
+            "You must solve potential complilation error by analyze the code line by line"
+            "Particulary, focus on the IMPORT FILE PATH and "
         ),  
     },
     {   
         "role": "user",
         "content": (
-            f"analyze your previous response {str(response)} and modify properly, add new test cases."
+            f"analyze these test cases {str(response)} and modify properly and add new test cases if possible."
             f"analysis: {analysis}"
             f"code: {code}"
-        ),
-    },
-    ]
-    # modify again.
-    response2 = client.chat.completions.create(
-        model="sonar-pro",
-        messages=messages2,
-    )
-    return str(response2)
-
-@mcp.tool()
-def generate_jest_test_from_path(codepath:str) -> str:
-    """Generate a test of the given file path.
-    Args:
-        codepath: javascript file path.
-    """
-    # Here you would implement logic to generate a test based on the analysis
-    # For simplicity, we will just return the analysis as the test code
-    code = None
-    try:
-        with open(codepath, 'r', encoding='utf-8') as f:
-            code = f.read()
-    except Exception as e:
-        return "Invalid file path."
-    try:
-        ast = esprima.parseModule(code)
-        analysis = json.dumps(ast.toDict(), indent=2, ensure_ascii=False)
-    except Exception as e:
-        return f"invalid java script code:{code}, this code cannot be parsed."
-    
-    # process = subprocess.Popen(
-    # "ollama run gemma3:4b",  
-    # stdin=subprocess.PIPE,
-    # stdout=subprocess.PIPE,
-    # stderr=subprocess.PIPE,
-    # text=True,  # Python 3.7 이상에서 텍스트 모드 사용
-    # bufsize=10,
-    # encoding='utf-8' # 라인 단위 버퍼링
-    # )
-
-    user_input = f"code: {code}'\n---------------'\n' analysis:{analysis}, give me EXACT, PROPER, and VARIOUS test cases."
-    # outs, errs = process.communicate(input=user_input, timeout=60)
-    
-    messages = [
-    {
-        "role": "system",
-        "content": (
-            "You are the best expert in code analysis and generation. "
-            "You MUST generate a test based on the analysis provided."
-            "The test should be a as VARIOUS as possible and EXACT."
-            "You must use the following format."
-            "- test case name: <name of test case>"
-            "- test code: <code of the test>"
-        ),  
-    },
-    {   
-        "role": "user",
-        "content": (
-            "Please crate a good test code based on the analysis provided."
-            f"analysis: {analysis}"
-            f"code: {code}"
-        ),
-    },
-    ]
-
-    # chat completion without streaming
-    response = client.chat.completions.create(
-        model="sonar-pro",
-        messages=messages,
-    )
-    messages2 = [
-    {
-        "role": "system",
-        "content": (
-            "You are the best expert in code analysis and generation. "
-            "You MUST generate a test based on the analysis provided."
-            "The test should be a as VARIOUS as possible and EXACT."
-            "You must use the following format."
-            "- test case name: <name of test case>"
-            "- test code: <code of the test>"
-        ),  
-    },
-    {   
-        "role": "user",
-        "content": (
-            f"analyze your previous response {str(response)} and modify properly, add new test cases."
-            f"analysis: {analysis}"
-            f"code: {code}"
+            f"current file paht: {code_file_path}"
+            f"whole directory tree: {repo_tree}"
         ),
     },
     ]
