@@ -45,8 +45,10 @@ def generate_test(code:str) -> str:
     #         code = f.read()
     # except Exception as e:
     #     return str(e)   
-    # analysis = esprima.parseScript(code)
-    analysis = code
+    try:
+        analysis = esprima.parseScript(code)
+    except Exception as e:
+        return "invalid java script code: this code cannot be parsed."
     
     # process = subprocess.Popen(
     # "ollama run gemma3:4b",  
