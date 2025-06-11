@@ -28,21 +28,20 @@ mcp = FastMCP(
 
 client = OpenAI(api_key=PERPLEXITY_API_KEY, base_url="https://api.perplexity.ai")
 
-@mcp.tool()
-def _execute_validate_test(test_code_path:str) -> str:
+
+async def _execute_validate_test(test_code_path:str) -> str:
     if not test_code_path.endswith('.test.js'):
         return "the file path is not valid. It must ends with .test.js"
     cmd = "npx.cmd"
     args = ["jest"]
-    subprocess.run(["npx.cmd", "jest"])
-    return ""
-    # proc = await asyncio.create_subprocess_exec(
-    #     cmd, *args,
-    #     stdout=asyncio.subprocess.PIPE,
-    #     stderr=asyncio.subprocess.PIPE
-    # )
-    # stdout, stderr = await proc.communicate()
-    # return stdout, stderr
+
+    proc = await asyncio.create_subprocess_exec(
+        cmd, *args,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
+    )
+    stdout, stderr = proc.communicate()
+    return stdout, stderr
     # stdout, stderr = await proc.communicate()
 
     # if stdout:
@@ -78,7 +77,7 @@ def execute_validate_test(test_code_path: str) -> str:
         return loop.run_until_complete(_execute_validate_test(test_code_path))
     except RuntimeError:
         # No running loop, safe to use asyncio.run
-        return _execute_validate_test(test_code_path)
+        return asyncio.run(_execute_validate_test(test_code_path))
     
 @mcp.tool()
 def generate_test_from_raw_code(code:str, code_file_path:str, repo_tree:str) -> str:
