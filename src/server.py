@@ -14,6 +14,7 @@ import ast
 import subprocess
 import asyncio 
 import nest_asyncio
+from foo import _execute_validate_test
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 load_dotenv(dotenv_path)
@@ -27,28 +28,18 @@ mcp = FastMCP(
 )
 
 client = OpenAI(api_key=PERPLEXITY_API_KEY, base_url="https://api.perplexity.ai")
-
-
-async def _execute_validate_test(test_code_path:str) -> str:
-    if not test_code_path.endswith('.test.js'):
+    
+@mcp.tool()
+async def test_and_repeat(test_code_path: str, save_path: str) -> None:
+    """execute test code and return test result."""
+    """test_code_path must be absolute path."""
+    """save_path: must be absolute path where syntatically modified test_code is saved."""
+    if not test_code_path.endswith('.test.js') or not save_path.endswith('.test.js'):
         return "the file path is not valid. It must ends with .test.js"
-    cmd = "npx.cmd"
-    args = ["jest"]
-
-    proc = await asyncio.create_subprocess_exec(
-        cmd, *args,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE
-    )
-    stdout, stderr = proc.communicate()
-    return stdout, stderr
-    # stdout, stderr = await proc.communicate()
-
-    # if stdout:
-    #     return f'[stdout]\n{stdout.decode()}'
-    # if stderr:
-    #     return f'[stderr]\n{stderr.decode()}'
-    # return "validation success. and the test exeuction result:"
+    if test_code_path == save_path:
+        return "Both file paths must be differnet. "
+    asyncio.create_task(_execute_validate_test(test_code_path, save_path))
+    return "Check the modified file in the save path, but it may take some time."
 
 @mcp.tool()
 async def get_github_repo_info() -> str:
@@ -64,20 +55,6 @@ async def get_github_repo_tree() -> str:
 async def get_github_repo_code(file_path: str) -> str:
     """Load information about the GitHub remote repository"""
     return await github_tools.get_repo_code(file_path)
-
-@mcp.tool()
-def execute_validate_test(test_code_path: str) -> str:
-    """Execute the given test code and validate it syntatically.
-    Args:
-        test_code_path: the file path of generated test code."""
-    # asyncio.run() cannot be called from a running event loop, so we must use nest_asyncio or make this tool async only
-    try:
-        loop = asyncio.get_running_loop()
-        nest_asyncio.apply()
-        return loop.run_until_complete(_execute_validate_test(test_code_path))
-    except RuntimeError:
-        # No running loop, safe to use asyncio.run
-        return asyncio.run(_execute_validate_test(test_code_path))
     
 @mcp.tool()
 def generate_test_from_raw_code(code:str, code_file_path:str, repo_tree:str) -> str:
