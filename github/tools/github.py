@@ -36,11 +36,7 @@ class GitHubAnalyzer:
 
             for item in tree.tree:
                 tree_data["tree"].append({
-                    "path": item.path,
-                    "type": item.type,
-                    "size": item.size,
-                    "sha": item.sha,
-                    "url": item.url
+                    "path": item.path
                 })
             
             self.repo_tree = tree_data
