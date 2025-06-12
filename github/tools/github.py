@@ -2,6 +2,7 @@ from github import Github, Auth
 from dotenv import load_dotenv
 from typing import Dict
 import os
+import base64
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', '.env')
 load_dotenv(dotenv_path)
@@ -49,9 +50,14 @@ class GitHubAnalyzer:
         try:
             file_content = self.repo.get_contents(file_path, ref=self.default_branch)
 
+            if file_content.encoding == 'base64':
+                content = base64.b64decode(file_content.content).decode('utf-8')
+            else:
+                content = file_content.content
+
             return {
                 "file_path": file_path,
-                "content": file_content.content
+                "content": content
             }
             
         except Exception as e:
