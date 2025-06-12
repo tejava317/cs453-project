@@ -21,7 +21,7 @@ mcpServers:
     args:
       [
         "--directory",
-        "/$DIR_TO_LOCAL_REPO$/cs453-project/github",
+        "/%DIR_TO_LOCAL_REPO%/cs453-project/github",
         "run",
         "server.py",
       ]

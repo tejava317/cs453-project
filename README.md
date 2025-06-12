@@ -1,6 +1,5 @@
 # CS453 Automated Software Testing Final Project
 
-
 ## Ollama Setup
 
 This project uses Ollama to run a local Large Language Model (LLM) for development and testing purposes. Follow the steps below to set up Ollama and connect it to the project.
@@ -60,6 +59,8 @@ MCPHost will automatically create a configuration file in your home directory if
 You can also specify a custom location using the `--config` flag.
 
 #### 3.1. Example STDIO MCP-server Configuration
+
+Example `.mcphost.yml` file is provided [here](https://github.com/tejava317/cs453-project/blob/main/.mcphost.yml)
 
 Below is an example configuration for an STDIO MCP-server:
 
