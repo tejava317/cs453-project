@@ -15,6 +15,7 @@ import subprocess
 import asyncio 
 import nest_asyncio
 from foo import _execute_validate_test
+from ollama import ChatResponse, chat
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 load_dotenv(dotenv_path)
@@ -38,8 +39,19 @@ async def test_and_repeat(test_code_path: str, save_path: str) -> None:
         return "the file path is not valid. It must ends with .test.js"
     if test_code_path == save_path:
         return "Both file paths must be differnet. "
-    asyncio.create_task(_execute_validate_test(test_code_path, save_path))
-    return "Check the modified file in the save path, but it may take some time."
+    try:
+        proc = subprocess.Popen(
+            ["npx.cmd", "jest", "--runInBand", "--ci"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,  encoding='utf-8',
+            cwd="c:/github/Automated Software Testing/cs453-project"
+        )
+        outs, err = proc.communicate(timeout=10)
+        return outs, err
+    except subprocess.TimeoutExpired as e:
+        outs, err
+    return outs, err
 
 @mcp.tool()
 async def get_github_repo_info() -> str:

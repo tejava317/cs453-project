@@ -2,6 +2,7 @@ import asyncio
 import os
 from ollama import chat
 from ollama import ChatResponse
+import subprocess
 import ollama
 model = 'gemma3'
 MAX_ITER = 2
@@ -58,5 +59,11 @@ async def _execute_validate_test(test_code_path:str, save_path:str):
     return
 
 if __name__ == "__main__":
-    asyncio.create_task(_execute_validate_test('C:/github/Automated Software Testing/cs453-project/src/tools/funtion.generated.test.js', 
-                                               'C:/github/Automated Software Testing/cs453-project/src/tools/funtion.generated_result.test.js'))
+    proc = subprocess.Popen(
+    ["npx.cmd", "jest", "--runInBand", "--ci"],
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
+    text=True,  encoding='utf-8'
+    )
+    outs, err = proc.communicate(timeout=10)
+    print(outs, err)
