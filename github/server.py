@@ -32,7 +32,7 @@ if __name__ == "__main__":
     
     github_tools = GitHubTools(args.repo_owner, args.repo_name)
 
-    # Use 'mcp dev src/server.py' to start MCP Inspector
+    # Use 'mcp dev github/server.py' to start MCP Inspector
     try:
         mcp.run(transport="stdio")
     except Exception as e:
