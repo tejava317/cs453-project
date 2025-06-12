@@ -1,37 +1,27 @@
 from mcp.server.fastmcp import FastMCP
-from tools.github import GitHubTools
-import argparse
+from tools.github import GitHubAnalyzer
+from typing import Dict
 
 mcp = FastMCP(
-    name="GitHub Repository Agent",
+    name="GitHub MCP Server",
     instructions="""
         This server provides GitHub repository analysis tools.
         """
 )
 
-@mcp.tool()
-async def get_github_repo_info() -> str:
-    """Load information about the GitHub repository"""
-    return await github_tools.get_repo_info()
+github_analyzer = GitHubAnalyzer()
 
 @mcp.tool()
-async def get_github_repo_tree() -> str:
+async def get_github_repository_tree(repo_owner: str, repo_name: str) -> Dict:
     """Load the directory structure of the GitHub repository"""
-    return await github_tools.get_repo_tree()
+    return await github_analyzer.get_repository_tree(repo_owner, repo_name)
 
 @mcp.tool()
-async def get_github_repo_code(file_path: str) -> str:
+async def get_github_file_content(file_path: str) -> Dict:
     """Load the content of a file in the GitHub repository"""
-    return await github_tools.get_repo_code(file_path)
+    return await github_analyzer.get_file_content(file_path)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--repo-owner", type=str, required=True)
-    parser.add_argument("--repo-name", type=str, required=True)
-    args = parser.parse_args()
-    
-    github_tools = GitHubTools(args.repo_owner, args.repo_name)
-
     # Use 'mcp dev github/server.py' to start MCP Inspector
     try:
         mcp.run(transport="stdio")
