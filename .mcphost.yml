@@ -15,21 +15,16 @@
 mcpServers:
   time:
     command: uvx
-    args: ["mcp-server-time", "--local-timezone=America/New_York"]
+    args: ["mcp-server-time"]
   git-test:
     command: uv
     args:
       [
         "--directory",
-        "/Users/shyo/dev/cs453/cs453-project/github",
+        "/$DIR_TO_LOCAL_REPO$/cs453-project/github",
         "run",
         "server.py",
       ]
-#  test:
-#    command: uv
-#    args:
-#      ["--directory", "/Users/shyo/dev/cs453/cs453-project", "run", "server.py"]
-
 # Application settings (all optional)
 # model: "anthropic:claude-sonnet-4-20250514"  # Default model to use
 # max-steps: 20                                # Maximum agent steps (0 for unlimited)
