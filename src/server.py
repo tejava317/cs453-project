@@ -13,7 +13,7 @@ import json
 import ast
 import subprocess
 import asyncio 
-from foo import _test_and_repeat, _generate_test_from_raw_code
+from utils.foo import _test_and_repeat, _generate_test_from_raw_code
 from ollama import ChatResponse, chat
 import ollama
 from pathlib import Path
