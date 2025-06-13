@@ -41,10 +41,9 @@ def test_and_repeat(code_path:str, test_code_path: str, save_code_path: str):
     return _test_and_repeat(code_path, test_code_path, save_code_path)
 
 @mcp.tool()
-def generate_test_from_raw_code(code:str, code_file_path:str, test_code_path:str, repo_tree:str) -> str:
+def generate_test_from_raw_code(code_file_path:str, test_code_path:str, repo_tree:str) -> str:
     """Generate test from given raw code, code's file path, and directory tree.
     Args:
-        code: raw code
         code_file_path: the file path of code
         test_code_path: the file path of test code to be saved.
         repo_tree: the entire repo tree that contains the code file.

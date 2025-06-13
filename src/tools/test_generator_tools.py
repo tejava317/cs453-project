@@ -77,7 +77,7 @@ def _test_and_repeat(code_path: str, test_code_path: str, save_code_path: str):
             f.write(test_code)
     return "done"
 
-def _generate_test_from_raw_code(code:str, code_file_path:str, test_code_path, repo_tree:str) -> str:
+def _generate_test_from_raw_code(code_file_path:str, test_code_path:str, repo_tree:str) -> str:
     analysis = ''
     if not code_file_path.endswith('.js') or not code_file_path.endswith('.ts'):
         return "The test code must be javascript/typescript file."
@@ -88,7 +88,9 @@ def _generate_test_from_raw_code(code:str, code_file_path:str, test_code_path, r
         analysis = json.dumps(ast.toDict(), indent=2, ensure_ascii=False)
     except Exception as e:
         analysis = ''
-        
+    code = ''
+    with open(code_file_path, 'r') as f:
+        code = f.read()
     prompt = (
             "Crate a good jest test code based on the analysis provided."
             f"analysis: {analysis}"
