@@ -1,6 +1,8 @@
 from github import Github, Auth
 from dotenv import load_dotenv
 from typing import Dict
+from ollama import chat
+from pydantic import BaseModel
 import os
 import base64
 
@@ -11,6 +13,15 @@ GITHUB_ACCESS_TOKEN = os.getenv("GITHUB_ACCESS_TOKEN")
 auth = Auth.Token(GITHUB_ACCESS_TOKEN) if GITHUB_ACCESS_TOKEN else None
 g = Github(auth=auth)
 
+class Endpoint(BaseModel):
+    endpoints: list[str]
+
+class APISpec(BaseModel):
+    endpoint_name: str
+    params: list[Dict]
+    returns: list[Dict]
+    code: str
+
 class GitHubAnalyzer:
     def __init__(self):
         self.repo_owner = ""
@@ -18,6 +29,7 @@ class GitHubAnalyzer:
         self.repo = None
         self.default_branch = ""
         self.repo_tree = {}
+        self.model = 'mistral:7b'
     
     async def get_repository_tree(self, repo_owner, repo_name) -> Dict:
         self.repo_owner = repo_owner
@@ -46,19 +58,38 @@ class GitHubAnalyzer:
         except Exception as e:
             return {"error": str(e)}
     
-    async def get_file_content(self, file_path: str) -> Dict:
+    async def get_api_endpoints_from_code(self, file_path: str) -> Dict:
         try:
             file_content = self.repo.get_contents(file_path, ref=self.default_branch)
 
             if file_content.encoding == 'base64':
-                content = base64.b64decode(file_content.content).decode('utf-8')
+                code = base64.b64decode(file_content.content).decode('utf-8')
             else:
-                content = file_content.content
+                code = file_content.content
 
-            return {
-                "file_path": file_path,
-                "content": content
-            }
+            response = chat(
+                messages=[{
+                    'role': 'user',
+                    'content': f'Extract all API endpoint names defined in the following code: {code}'
+                }],
+                model=self.model,
+                format=Endpoint.model_json_schema(),
+            )
+            endpoints = Endpoint.model_validate_json(response.message.content)
+
+            api_specs = {}
+            for endpoint in endpoints.endpoints:
+                response = chat(
+                    messages=[{
+                        'role': 'user',
+                        'content': f'Analyze the {endpoint} endpoint implementation in the following code: {code}'
+                    }],
+                    model=self.model,
+                    format=APISpec.model_json_schema(),
+                )
+                api_specs[endpoint] = APISpec.model_validate_json(response.message.content)
+
+            return api_specs
             
         except Exception as e:
             return {"error": str(e)}

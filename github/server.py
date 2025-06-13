@@ -17,9 +17,9 @@ async def get_github_repository_tree(repo_owner: str, repo_name: str) -> Dict:
     return await github_analyzer.get_repository_tree(repo_owner, repo_name)
 
 @mcp.tool()
-async def get_github_file_content(file_path: str) -> Dict:
-    """Load the content of a file in the GitHub repository"""
-    return await github_analyzer.get_file_content(file_path)
+async def get_github_api_endpoints(file_path: str) -> Dict:
+    """Load all API endpoints information from a file in the GitHub repository"""
+    return await github_analyzer.get_api_endpoints_from_code(file_path)
 
 if __name__ == "__main__":
     # Use 'mcp dev github/server.py' to start MCP Inspector
