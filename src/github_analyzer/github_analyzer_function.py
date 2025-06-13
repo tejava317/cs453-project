@@ -58,7 +58,7 @@ class GitHubAnalyzer:
         except Exception as e:
             return {"error": str(e)}
     
-    async def get_api_endpoints_from_code(self, file_path: str) -> Dict:
+    async def generate_openapi_spec(self, file_path: str) -> Dict:
         try:
             file_content = self.repo.get_contents(file_path, ref=self.default_branch)
 
