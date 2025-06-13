@@ -29,7 +29,7 @@ class GitHubAnalyzer:
         self.repo = None
         self.default_branch = ""
         self.repo_tree = {}
-        self.model = 'mistral:7b'
+        self.model = 'qwen3:8b'
     
     async def get_repository_tree(self, repo_owner, repo_name) -> Dict:
         self.repo_owner = repo_owner

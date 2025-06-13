@@ -1,5 +1,5 @@
 from mcp.server.fastmcp import FastMCP
-from tools.github import GitHubAnalyzer
+from tools.github_analyzer import GitHubAnalyzer
 from typing import Dict
 
 mcp = FastMCP(
