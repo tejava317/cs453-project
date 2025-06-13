@@ -41,16 +41,16 @@ def test_and_repeat(code_path:str, test_code_path: str, save_code_path: str):
     return _test_and_repeat(code_path, test_code_path, save_code_path)
 
 @mcp.tool()
-def generate_test_from_raw_code(code_file_path:str, test_code_path:str, repo_tree:str) -> str:
+def generate_test_from_raw_code(code_file_path:str, test_code_path:str, openapi_spec:str) -> str:
     """Generate test from given raw code, code's file path, and directory tree.
     Args:
         code_file_path: the file path of code
         test_code_path: the file path of test code to be saved.
-        repo_tree: the entire repo tree that contains the code file.
+        openapi_spec: The whole open api specification information, which is necessary.
     """
     # Here you would implement logic to generate a test based on the analysis
     # For simplicity, we will just return the analysis as the test code
-    return _generate_test_from_raw_code(code, code_file_path, test_code_path, repo_tree)
+    return _generate_test_from_raw_code(code_file_path, test_code_path, openapi_spec)
 
 if __name__ == "__main__":
     # Use 'mcp dev github/server.py' to start MCP Inspector

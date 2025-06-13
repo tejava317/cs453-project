@@ -77,7 +77,7 @@ def _test_and_repeat(code_path: str, test_code_path: str, save_code_path: str):
             f.write(test_code)
     return "done"
 
-def _generate_test_from_raw_code(code_file_path:str, test_code_path:str, repo_tree:str) -> str:
+def _generate_test_from_raw_code(code_file_path:str, test_code_path:str, openapi_spec:str) -> str:
     analysis = ''
     if not code_file_path.endswith('.js') or not code_file_path.endswith('.ts'):
         return "The test code must be javascript/typescript file."
@@ -96,8 +96,8 @@ def _generate_test_from_raw_code(code_file_path:str, test_code_path:str, repo_tr
             f"analysis: {analysis}"
             f"code: {code}"
             f"current file paht: {code_file_path}"
-            f"whole directory tree: {repo_tree}"
-        )
+            f"whole openapi spec: {openapi_spec}"
+    )
     
     response: ChatResponse = chat(
     model=model,
