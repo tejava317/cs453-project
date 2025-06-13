@@ -1,9 +1,8 @@
 from mcp.server.fastmcp import FastMCP
-from tools.github import GitHubTools
+from tools.bar import GitHubTools
 from openai import OpenAI
 from typing import Any
 from dotenv import load_dotenv
-import subprocess
 import argparse
 import os
 import httpx
@@ -13,7 +12,8 @@ import json
 import ast
 import subprocess
 import asyncio 
-from utils.foo import _test_and_repeat, _generate_test_from_raw_code
+from tools.foo import _test_and_repeat, _generate_test_from_raw_code
+from tools.bar import GitHubAnalyzer, Dict
 from ollama import ChatResponse, chat
 import ollama
 from pathlib import Path
@@ -31,6 +31,18 @@ mcp = FastMCP(
 
 client = OpenAI(api_key=PERPLEXITY_API_KEY, base_url="https://api.perplexity.ai")
     
+github_analyzer = GitHubAnalyzer()
+
+@mcp.tool()
+async def get_github_repository_tree(repo_owner: str, repo_name: str) -> Dict:
+    """Load the directory structure of the GitHub repository"""
+    return await github_analyzer.get_repository_tree(repo_owner, repo_name)
+
+@mcp.tool()
+async def get_github_api_endpoints(file_path: str) -> Dict:
+    """Load all API endpoints information from a file in the GitHub repository"""
+    return await github_analyzer.get_api_endpoints_from_code(file_path)
+
 @mcp.tool()
 def test_and_repeat(code_path:str, test_code_path: str, save_code_path: str):
     """execute test code and return test result."""
