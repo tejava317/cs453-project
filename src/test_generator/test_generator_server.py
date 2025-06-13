@@ -1,20 +1,7 @@
 from mcp.server.fastmcp import FastMCP
-from openai import OpenAI
-from typing import Any
 from dotenv import load_dotenv
-import argparse
 import os
-import httpx
-import ast
-import esprima
-import json
-import ast
-import subprocess
-import asyncio 
-from tools.test_generator_tools import _test_and_repeat, _generate_test_from_raw_code
-from ollama import ChatResponse, chat
-import ollama
-from pathlib import Path
+from test_generator_function import _test_and_repeat, _generate_test_from_raw_code
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 load_dotenv(dotenv_path)
@@ -26,8 +13,6 @@ mcp = FastMCP(
         This server provides tools that generates test cases and validate test cases.
         """
 )
-
-client = OpenAI(api_key=PERPLEXITY_API_KEY, base_url="https://api.perplexity.ai")
 
 @mcp.tool()
 def test_and_repeat(code_path:str, test_code_path: str, save_code_path: str):
