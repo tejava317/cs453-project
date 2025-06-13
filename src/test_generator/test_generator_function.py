@@ -1,14 +1,12 @@
-import asyncio
 import os
 from ollama import chat
 from ollama import ChatResponse
-import subprocess
 import ollama
-from pydantic import BaseModel
 from pathlib import Path
 import json
-import esprima
-model = 'gemma3'
+from typing import Dict
+
+model = 'qwen3:8b'
 MAX_ITER = 10
 
 def extract_code_from_response(response):
@@ -77,26 +75,13 @@ def _test_and_repeat(code_path: str, test_code_path: str, save_code_path: str):
             f.write(test_code)
     return "done"
 
-def _generate_test_from_raw_code(code_file_path:str, test_code_path:str, openapi_spec:str) -> str:
-    analysis = ''
-    if not code_file_path.endswith('.js') or not code_file_path.endswith('.ts'):
-        return "The test code must be javascript/typescript file."
-    if not test_code_path.endswith('test.js') or not test_code_path.endswith('test.ts'):
-        return "The test code path must be jest test file, so it must ends with test.js or test.ts"
-    try:
-        ast = esprima.parseModule(code)
-        analysis = json.dumps(ast.toDict(), indent=2, ensure_ascii=False)
-    except Exception as e:
-        analysis = ''
-    code = ''
-    with open(code_file_path, 'r') as f:
-        code = f.read()
+def generate_test_code(openapi_spec:Dict) -> str:
+    
+    openapi_spec_str = json.dumps(openapi_spec, indent=2)
+
     prompt = (
-            "Crate a good jest test code based on the analysis provided."
-            f"analysis: {analysis}"
-            f"code: {code}"
-            f"current file paht: {code_file_path}"
-            f"whole openapi spec: {openapi_spec}"
+            "Crate a good jest test code based on the openapi spec. Test code must cover all the endpoints in the openapi spec. Test code must cover all the possible cases, edge cases and unexpected cases."
+            f"openapi spec: {openapi_spec_str}"
     )
     
     response: ChatResponse = chat(
@@ -109,15 +94,14 @@ def _generate_test_from_raw_code(code_file_path:str, test_code_path:str, openapi
     ],
     )
     response = extract_code_from_response(response.message.content)
-    with open(test_code_path, 'w') as f:
-        f.write(response)
-    return f"Test code is generated at {test_code_path}"
+    
+    return response
 
-if __name__ == "__main__":
-    test_code_path = 'C:/github/cs453-project/src/tools/funtion.generated.test.js'
-    save_code_path = 'C:/github/cs453-project/src/tools/funtion.generated_result.test.js'
+# if __name__ == "__main__":
+    # test_code_path = 'C:/github/cs453-project/src/tools/funtion.generated.test.js'
+    #save_code_path = 'C:/github/cs453-project/src/tools/funtion.generated_result.test.js'
     # _test_and_repeat(test_code_path, save_code_path)
-    code_path = 'C:/github/cs453-project/funtion.js'
-    code = None
-    with open(code_path, 'r') as f:
-        code = f.read()
+    # code_path = 'C:/github/cs453-project/funtion.js'
+    # code = None
+    # with open(code_path, 'r') as f:
+    #     code = f.read()
