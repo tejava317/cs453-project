@@ -13,9 +13,10 @@ import json
 import ast
 import subprocess
 import asyncio 
-import nest_asyncio
-from foo import _execute_validate_test
+from foo import _test_and_repeat, _generate_test_from_raw_code
 from ollama import ChatResponse, chat
+import ollama
+from pathlib import Path
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 load_dotenv(dotenv_path)
@@ -31,27 +32,15 @@ mcp = FastMCP(
 client = OpenAI(api_key=PERPLEXITY_API_KEY, base_url="https://api.perplexity.ai")
     
 @mcp.tool()
-async def test_and_repeat(test_code_path: str, save_path: str) -> None:
+def test_and_repeat(code_path:str, test_code_path: str, save_code_path: str):
     """execute test code and return test result."""
-    """test_code_path must be absolute path."""
-    """save_path: must be absolute path where syntatically modified test_code is saved."""
-    if not test_code_path.endswith('.test.js') or not save_path.endswith('.test.js'):
-        return "the file path is not valid. It must ends with .test.js"
-    if test_code_path == save_path:
-        return "Both file paths must be differnet. "
-    try:
-        proc = subprocess.Popen(
-            ["npx.cmd", "jest", "--runInBand", "--ci"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,  encoding='utf-8',
-            cwd="c:/github/Automated Software Testing/cs453-project"
-        )
-        outs, err = proc.communicate(timeout=10)
-        return outs, err
-    except subprocess.TimeoutExpired as e:
-        outs, err
-    return outs, err
+    """
+    Args:
+        code_path: must be absolute path, where the target code is saved.
+        test_code_path: must be absolute path, the file path of test code to be saved.
+        save_code_path: must be absolute path where syntatically modified test_code is saved
+    """
+    return _test_and_repeat(code_path, test_code_path, save_code_path)
 
 @mcp.tool()
 async def get_github_repo_info() -> str:
@@ -69,95 +58,17 @@ async def get_github_repo_code(file_path: str) -> str:
     return await github_tools.get_repo_code(file_path)
     
 @mcp.tool()
-def generate_test_from_raw_code(code:str, code_file_path:str, repo_tree:str) -> str:
+def generate_test_from_raw_code(code:str, code_file_path:str, test_code_path:str, repo_tree:str) -> str:
     """Generate test from given raw code, code's file path, and directory tree.
     Args:
         code: raw code
         code_file_path: the file path of code
+        test_code_path: the file path of test code to be saved.
         repo_tree: the entire repo tree that contains the code file.
     """
     # Here you would implement logic to generate a test based on the analysis
     # For simplicity, we will just return the analysis as the test code
-    analysis = ''
-    if code_file_path.endswith('.py'):
-        try:
-            root = ast.parse(code)
-            analysis = ast.dump(root, indent=4)
-        except Exception as e:
-            analysis = ''
-    elif code_file_path.endswith('.js'):
-        try:
-            ast = esprima.parseModule(code)
-            analysis = json.dumps(ast.toDict(), indent=2, ensure_ascii=False)
-        except Exception as e:
-            analysis = ''
-    # process = subprocess.Popen(
-    # "ollama run gemma3:4b",  
-    # stdin=subprocess.PIPE,
-    # stdout=subprocess.PIPE,
-    # stderr=subprocess.PIPE,
-    # text=True,  
-    # bufsize=10,
-    # encoding='utf-8'
-    # )
-
-    # user_input = f"code: {code}'\n---------------'\n' analysis:{analysis}, give me EXACT, PROPER, and VARIOUS test cases."
-    # outs, errs = process.communicate(input=user_input, timeout=60)
-    
-    messages = [
-    {
-        "role": "system",
-        "content": (
-            "You MUST generate a test based on the analysis provided."
-            "The test should be a as VARIOUS and EXACT as possible."
-            "You must use the following format."
-            "- test case name: <name of test case>"
-            "- test code: <code of the test>"
-        ),  
-    },
-    {   
-        "role": "user",
-        "content": (
-            "Crate a good test code based on the analysis provided."
-            f"analysis: {analysis}"
-            f"code: {code}"
-            f"current file paht: {code_file_path}"
-            f"whole directory tree: {repo_tree}"
-        ),
-    },
-    ]
-
-    # chat completion without streaming
-    response = client.chat.completions.create(
-        model="sonar-pro",
-        messages=messages,
-    )
-    messages2 = [
-    {
-        "role": "system",
-        "content": (
-            "You are the validator the given test codes of the code and analysis."
-            "You must solve potential complilation error by analyze the code line by line"
-            "Particulary, focus on the IMPORT FILE PATH and "
-        ),  
-    },
-    {   
-        "role": "user",
-        "content": (
-            f"analyze these test cases {str(response)} and modify properly and add new test cases if possible."
-            f"analysis: {analysis}"
-            f"code: {code}"
-            f"current file paht: {code_file_path}"
-            f"whole directory tree: {repo_tree}"
-        ),
-    },
-    ]
-    # modify again.
-    response2 = client.chat.completions.create(
-        model="sonar-pro",
-        messages=messages2,
-    )
-    return str(response2), "Yout must check again the file path of the given code."
+    return _generate_test_from_raw_code(code, code_file_path, test_code_path, repo_tree)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -172,3 +83,4 @@ if __name__ == "__main__":
         mcp.run(transport="stdio")
     except Exception as e:
         print(f"Error: {e}")
+    

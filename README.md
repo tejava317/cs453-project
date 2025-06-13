@@ -102,7 +102,7 @@ Below is an example configuration for an STDIO MCP-server:
 
 Run MCPHost using following command:
 ```bash
-mcphost -m ollama:qwen3:14b
+mcphost -m ollama:qwen3:14b --config D:/Users/NA/Desktop/mcphost.json
 ```
 
 For more details and advanced configuration, please refer to the official MCPHost documentation: [https://github.com/mark3labs/mcphost](https://github.com/mark3labs/mcphost)
