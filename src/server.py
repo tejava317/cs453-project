@@ -1,5 +1,4 @@
 from mcp.server.fastmcp import FastMCP
-from tools.bar import GitHubTools
 from openai import OpenAI
 from typing import Any
 from dotenv import load_dotenv
@@ -55,21 +54,6 @@ def test_and_repeat(code_path:str, test_code_path: str, save_code_path: str):
     return _test_and_repeat(code_path, test_code_path, save_code_path)
 
 @mcp.tool()
-async def get_github_repo_info() -> str:
-    """Load information about the GitHub remote repository"""
-    return await github_tools.get_repo_info()
-
-@mcp.tool()
-async def get_github_repo_tree() -> str:
-    """Load information about the GitHub remote repository"""
-    return await github_tools.get_repo_tree()
-
-@mcp.tool()
-async def get_github_repo_code(file_path: str) -> str:
-    """Load information about the GitHub remote repository"""
-    return await github_tools.get_repo_code(file_path)
-    
-@mcp.tool()
 def generate_test_from_raw_code(code:str, code_file_path:str, test_code_path:str, repo_tree:str) -> str:
     """Generate test from given raw code, code's file path, and directory tree.
     Args:
@@ -83,16 +67,8 @@ def generate_test_from_raw_code(code:str, code_file_path:str, test_code_path:str
     return _generate_test_from_raw_code(code, code_file_path, test_code_path, repo_tree)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--repo-owner", type=str, required=True)
-    parser.add_argument("--repo-name", type=str, required=True)
-    args = parser.parse_args()
-    
-    github_tools = GitHubTools(args.repo_owner, args.repo_name)
-
-    # Use 'mcp dev src/server.py' to start MCP Inspector
+    # Use 'mcp dev github/server.py' to start MCP Inspector
     try:
         mcp.run(transport="stdio")
     except Exception as e:
         print(f"Error: {e}")
-    
